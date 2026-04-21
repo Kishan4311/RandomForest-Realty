@@ -179,7 +179,7 @@ if data is not None:
     # -------------------------------
     st.subheader("Price Distribution")
 
-   fig, ax = plt.subplots()
+    fig, ax = plt.subplots()
 
     ax.hist(data.iloc[:, -1], bins=30)
 
