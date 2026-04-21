@@ -53,55 +53,55 @@ def user_input():
 
     features = {
         "CRIM": st.sidebar.number_input(
-            "Crime Rate (per capita)", 0.0, 100.0, 0.1
+            "CRIM: Crime Rate (per capita)", 0.0, 100.0, 0.1
         ),
 
         "ZN": st.sidebar.number_input(
-            "Residential Land % (large plots > 25,000 sq.ft.)", 0.0, 100.0, 0.0
+            "ZN: Residential Land % (large plots > 25,000 sq.ft.)", 0.0, 100.0, 0.0
         ),
 
         "INDUS": st.sidebar.number_input(
-            "Non-Retail Business Area (%)", 0.0, 30.0, 5.0
+            "INDUS: Non-Retail Business Area (%)", 0.0, 30.0, 5.0
         ),
 
         "CHAS": st.sidebar.selectbox(
-            "Near Charles River?", ["No", "Yes"]
+            "CHAS: Near Charles River?", ["No", "Yes"]
         ),
 
         "NOX": st.sidebar.number_input(
-            "Air Pollution Level (NOX concentration)", 0.0, 1.0, 0.5
+            "NOX: Air Pollution Level (NOX concentration)", 0.0, 1.0, 0.5
         ),
 
         "RM": st.sidebar.number_input(
-            "Average Number of Rooms", 0.0, 10.0, 5.0
+            "RM: Average Number of Rooms", 0.0, 10.0, 5.0
         ),
 
         "AGE": st.sidebar.number_input(
-            "Old Houses (%) (built before 1940)", 0.0, 100.0, 50.0
+            "AGE: Old Houses (%) (built before 1940)", 0.0, 100.0, 50.0
         ),
 
         "DIS": st.sidebar.number_input(
-            "Distance to Employment Centers", 0.0, 20.0, 5.0
+            "DIS: Distance to Employment Centers", 0.0, 20.0, 5.0
         ),
 
         "RAD": st.sidebar.number_input(
-            "Highway Accessibility Index", 0.0, 25.0, 5.0
+            "RAD: Highway Accessibility Index", 0.0, 25.0, 5.0
         ),
 
         "TAX": st.sidebar.number_input(
-            "Property Tax Rate", 0.0, 1000.0, 300.0
+            "TAX: Property Tax Rate", 0.0, 1000.0, 300.0
         ),
 
         "PTRATIO": st.sidebar.number_input(
-            "Student-Teacher Ratio", 0.0, 30.0, 15.0
+            "PTRATI: Student-Teacher Ratio", 0.0, 30.0, 15.0
         ),
 
         "B": st.sidebar.number_input(
-            "Diversity Index (B)", 0.0, 400.0, 300.0
+            "B: Diversity Index (B)", 0.0, 400.0, 300.0
         ),
 
         "LSTAT": st.sidebar.number_input(
-            "Lower Income Population (%)", 0.0, 50.0, 10.0
+            "LSTAT: Lower Income Population (%)", 0.0, 50.0, 10.0
         )
     }
 
@@ -179,10 +179,21 @@ if data is not None:
     # -------------------------------
     st.subheader("Price Distribution")
 
-    fig, ax = plt.subplots()
+   fig, ax = plt.subplots()
+
     ax.hist(data.iloc[:, -1], bins=30)
-    ax.set_title("Price Distribution")
+
+    # Title
+    ax.set_title("Distribution of House Prices")
+
+    # X-axis label
+    ax.set_xlabel("House Price ($1000)")
+
+    # Y-axis label
+    ax.set_ylabel("Number of Houses")
+
     st.caption("All prices are shown in thousands of USD ($1000)")
+
     st.pyplot(fig)
 
    
