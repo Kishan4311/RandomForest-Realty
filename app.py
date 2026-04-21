@@ -142,21 +142,5 @@ if data is not None:
     ax.set_title("Price Distribution")
     st.pyplot(fig)
 
-    # -------------------------------
-    # FEATURE IMPORTANCE
-    # -------------------------------
-    if hasattr(model, "feature_importances_"):
-        st.subheader("Feature Importance")
-
-        importances = model.feature_importances_
-        features = model.feature_names_in_
-
-        fig2, ax2 = plt.subplots()
-        ax2.barh(features, importances)
-        ax2.set_title("Feature Importance")
-        st.pyplot(fig2)
-
-else:
-    st.info("Upload a dataset to see insights")
-
+   
 
