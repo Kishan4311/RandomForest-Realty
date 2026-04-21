@@ -22,7 +22,7 @@ st.markdown("Predict real estate prices using Machine Learning")
 @st.cache_resource
 def load_model():
     try:
-        model = joblib.load("model.joblib")
+        model = joblib.load("Dragon.joblib")
         return model
     except Exception as e:
         return None
