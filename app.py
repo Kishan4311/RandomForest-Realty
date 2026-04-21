@@ -50,46 +50,70 @@ data = load_data()
 st.sidebar.header("🏠 Property Features")
 
 def user_input():
-    # 👉 MODIFY THESE FEATURES BASED ON YOUR MODEL
-    area = st.sidebar.number_input("Area (sq ft)", 100, 10000, 1000)
-    bedrooms = st.sidebar.slider("Bedrooms", 1, 10, 2)
-    bathrooms = st.sidebar.slider("Bathrooms", 1, 10, 2)
-    
-    location = st.sidebar.selectbox(
-        "Location",
-        ["Location_A", "Location_B", "Location_C"]
-    )
 
-    # Example encoding (modify as needed)
-    location_map = {
-        "Location_A": 0,
-        "Location_B": 1,
-        "Location_C": 2
+    features = {
+        "CRIM": st.sidebar.number_input("CRIM", 0.0, 100.0, 0.1),
+        "ZN": st.sidebar.number_input("ZN", 0.0, 100.0, 0.0),
+        "INDUS": st.sidebar.number_input("INDUS", 0.0, 30.0, 5.0),
+        "CHAS": st.sidebar.selectbox("CHAS", [0, 1]),
+        "NOX": st.sidebar.number_input("NOX", 0.0, 1.0, 0.5),
+        "RM": st.sidebar.number_input("RM", 0.0, 10.0, 5.0),
+        "AGE": st.sidebar.number_input("AGE", 0.0, 100.0, 50.0),
+        "DIS": st.sidebar.number_input("DIS", 0.0, 20.0, 5.0),
+        "RAD": st.sidebar.number_input("RAD", 0.0, 25.0, 5.0),
+        "TAX": st.sidebar.number_input("TAX", 0.0, 1000.0, 300.0),
+        "PTRATIO": st.sidebar.number_input("PTRATIO", 0.0, 30.0, 15.0),
+        "B": st.sidebar.number_input("B", 0.0, 400.0, 300.0),
+        "LSTAT": st.sidebar.number_input("LSTAT", 0.0, 50.0, 10.0)
     }
+    feature_order = [
+    "CRIM","ZN","INDUS","CHAS","NOX","RM","AGE",
+    "DIS","RAD","TAX","PTRATIO","B","LSTAT"
+]
 
-    input_dict = {
-        "area": area,
-        "bedrooms": bedrooms,
-        "bathrooms": bathrooms,
-        "location": location_map[location]
-    }
-
-    return pd.DataFrame([input_dict])
-
+    return pd.DataFrame([features])[feature_order]
 input_df = user_input()
+
+# -------------------------------
+# PREPROCESSING
+# -------------------------------
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+
+@st.cache_resource
+def get_preprocessing(data):
+    imputer = SimpleImputer(strategy="median")
+    scaler = StandardScaler()
+
+    if data is not None and "MEDV" in data.columns:
+        X = data.drop("MEDV", axis=1)
+        imputer.fit(X)
+        scaler.fit(imputer.transform(X))
+        return imputer, scaler
+    else:
+        return None, None
+
+imputer, scaler = get_preprocessing(data)
 
 # -------------------------------
 # PREDICTION
 # -------------------------------
+
 st.subheader("📊 Prediction")
 
 if st.button("Predict Price"):
     with st.spinner("Predicting..."):
         try:
-            prediction = model.predict(input_df)[0]
-            st.success(f"💰 Estimated Price: ₹ {prediction:,.2f}")
+            if imputer is None or scaler is None:
+                st.error("⚠️ data.csv required for preprocessing")
+            else:
+                input_processed = imputer.transform(input_df)
+                input_scaled = scaler.transform(input_processed)
+                prediction = model.predict(input_scaled)[0]
+                st.success(f"💰 Estimated Price: ₹ {prediction:,.2f}")
         except Exception as e:
             st.error(f"Prediction failed: {e}")
+            
 
 # -------------------------------
 # DASHBOARD SECTION
@@ -125,7 +149,7 @@ if data is not None:
         st.subheader("Feature Importance")
 
         importances = model.feature_importances_
-        features = input_df.columns
+        features = model.feature_names_in_
 
         fig2, ax2 = plt.subplots()
         ax2.barh(features, importances)
@@ -135,33 +159,4 @@ if data is not None:
 else:
     st.info("Upload a dataset to see insights")
 
-# -------------------------------
-# CSV UPLOAD FOR BULK PREDICTION
-# -------------------------------
-st.markdown("---")
-st.subheader("📂 Bulk Prediction")
 
-uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
-
-if uploaded_file is not None:
-    try:
-        df = pd.read_csv(uploaded_file)
-        st.write("Preview:", df.head())
-
-        if st.button("Predict Bulk Data"):
-            preds = model.predict(df)
-            df["Predicted Price"] = preds
-
-            st.success("Predictions Completed")
-            st.dataframe(df)
-
-            csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                "Download Predictions",
-                csv,
-                "predictions.csv",
-                "text/csv"
-            )
-
-    except Exception as e:
-        st.error(f"Error: {e}")
